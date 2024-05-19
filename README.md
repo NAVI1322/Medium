@@ -106,7 +106,7 @@ Make sure to install the custom npm package in both the backend and frontend if 
 npm install your-custom-package
 ```
 
-Replace `your-custom-package` with the actual name of your npm package.
+Replace `@100xNavi/Medium` with the actual name of your npm package.
 
 ## Contributing
 
@@ -115,4 +115,4 @@ Contributions are welcome! Please open an issue or submit a pull request for any
 
 
 
-Replace `Navneet`, `Medium`, and `@100xnavi/medium-common` with your actual GitHub username, repository name, and the name of your npm package. This file provides an overview of the project, technologies used, custom npm package details, and instructions on how to set up and run the application.
+
