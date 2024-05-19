@@ -15,9 +15,8 @@ export const blogRoute = new Hono<{
 }>();
 
 // this is the middle ware to check the authiticite of the user
-blogRoute.use('/*', async (c , next)=>{
-
-
+blogRoute.use('/*', async (c , next)=>
+{
     const autHeader =  c.req.header("authorization")
     
     if(!autHeader)
@@ -30,10 +29,7 @@ blogRoute.use('/*', async (c , next)=>{
     else
     {    c.status(403);
         return c.json({message:"user does not found"})
-    }
-
-
-
+    } 
     await next();
 })
 
@@ -55,7 +51,7 @@ blogRoute.post('/', async (c) => {
         const authorId = c.get("userId")
 
 
-        console.log(body)
+       
       const blog = await prisma.post.create({
         data:{
             title: body.title,

@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { PrismaClient } from '@prisma/client/edge'
 import { withAccelerate } from '@prisma/extension-accelerate'
-import { sign, verify } from 'hono/jwt'
+import { sign } from 'hono/jwt'
 import { signInInput, signUpInput } from "@100xnavi/medium-common";
 
 
@@ -35,7 +35,6 @@ userRoute.post('/signup', async  (c) => {   // c => context
 
   try{
 
-   
     
     const user = await prisma.user.create({
       data:{
@@ -100,7 +99,7 @@ userRoute.post('/signup', async  (c) => {   // c => context
    
   
     return c.json({
-      message:"user Signup successfully",
+      message:"user Signed In successfully",
       jwt:token
     })
     
