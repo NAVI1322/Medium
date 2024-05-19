@@ -103,10 +103,10 @@ your-repo-name/
 Make sure to install the custom npm package in both the backend and frontend if it is required in both parts of the application. You can install it using:
 
 ```bash
-npm install your-custom-package
+npm install @100xNavi/Medium
 ```
 
-Replace `@100xNavi/Medium` with the actual name of your npm package.
+
 
 ## Contributing
 
