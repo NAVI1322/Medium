@@ -1,12 +1,33 @@
-import { Button } from "flowbite-react";
+
 import { Sheet, SheetTrigger } from "../ui/sheet";
 import { Comment_Post } from "../Blog_ui/modal_Comment_post";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { useParams } from "react-router-dom";
 
 const Post_Page = () => {
+
+  const { id } = useParams();
+const [post,setPost]=useState({});
+
+  useEffect(()=>{
+    
+    async function FetchPostData() {
+
+      console.log(id)
+      const res = (await axios.get("http://localhost:8787/api/v1/blog/"+id)).data.blog
+      setPost(res);
+    
+    }
+    FetchPostData()
+  },[])
+
+
+
   return (
     <div className=" flex flex-col justify-center container mx-auto mt-8 p-2 md:w-[680px] w-[452px]">
       <div className="md:text-4xl text-3xl  font-bold">
-        Title Mistakes You should Avoid
+        {post.title}
       </div>
 
       <div className="mt-14 flex  items-center ">
@@ -122,7 +143,14 @@ const Post_Page = () => {
           className="w-[680px] h-[388px]"
         />
       </div>
+      <div className="  mt-10 w-[680px] h-[388px] font-light ">
+        
+        
+       {post.content}
+      </div>
+      
     </div>
+    
   );
 };
 

@@ -6,10 +6,25 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import axios from "axios";
+import { useEffect } from "react";
 
-const BlogCard = () => {
+
+
+interface Card_Content{
+  date: String,
+  title: String,
+  content: String,
+  ClickEvent:()=>void,
+}
+
+
+const BlogCard = ({date,title,content,ClickEvent}:Card_Content) => {
+
+
+
   return (
-    <Card className=" ">
+    <Card className=" " onClick={ClickEvent}> 
       <CardHeader className="flex flex-col space-y-3">
         <CardDescription>
           <div className="flex space-x-2 items-center">
@@ -20,20 +35,16 @@ const BlogCard = () => {
             />
             <span className="text-lg font-">Navneet Sharma .</span>
             <span className="text-md font-extralight text-gray-300">
-              17 Dec 2024
+              {date}
             </span>
           </div>
         </CardDescription>
-        <CardTitle>Card Title</CardTitle>
-      </CardHeader>
+        <CardTitle>{title}</CardTitle>
+      </CardHeader> 
       <CardContent>
       <div className=" md:w-[550px] text-ellipsis overflow-hidden mb-5">
   <p className="line-clamp-3">
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut commodo
-    odio et arcu laoreet, a bibendum velit porttitor. Sed non mauris
-    vitae massa sagittis commodo. Pellentesque habitant morbi tristique
-    senectus et netus et malesuada fames ac turpis egestas.adfadfa dasfadsf
-    afsdfadsfadsfsd
+    {content}
   </p>
 </div>
       </CardContent>

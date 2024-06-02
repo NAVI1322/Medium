@@ -29,4 +29,5 @@ model Post {
   published Boolean @default(false)
   author    User    @relation(fields: [authorid], references: [id])   // this tell the user that authorid of table post refers to id of user table
   authorid  String
+  createdAt DateTime  @default(now())
 }

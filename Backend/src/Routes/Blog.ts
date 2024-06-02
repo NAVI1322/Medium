@@ -15,65 +15,74 @@ export const blogRoute = new Hono<{
 }>();
 
 // this is the middle ware to check the authiticite of the user
-blogRoute.use('/*', async (c , next)=>
-{
-    const autHeader =  c.req.header("authorization")
+// blogRoute.use('/*', async (c , next)=>
+// {
+//     const autHeader =  c.req.header("authorization")
     
-    if(!autHeader)
-    return c.json("auth failed - could not get the autheader")
+//     if(!autHeader)
+//     return c.json("auth failed - could not get the autheader")
     
-    const user =  await verify(autHeader,c.env.JWT_SECRET)
+//     const user =  await verify(autHeader,c.env.JWT_SECRET)
     
-    if(user)
-    c.set("userId",user.id)   // there we set the userid globally
-    else
-    {    c.status(403);
-        return c.json({message:"user does not found"})
-    } 
-    await next();
-})
+//     if(user)
+//     c.set("userId",user.id)   // there we set the userid globally
+//     else
+//     {    c.status(403);
+//         return c.json({message:"user does not found"})
+//     } 
+//     await next();
+// })
 
 
 
 
 // ***********************************************************************************************************************
 blogRoute.post('/', async (c) => {
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate()); // this creates a prisma client to perform queries
 
-    const prisma = new PrismaClient({
-        datasourceUrl:c.env.DATABASE_URL,
-      }).$extends(withAccelerate())   // this creates a prisma client to perform queries
-       
-      try{
-        
-        const body = await c.req.json();
-        // here we have to sanatize the body
-       
-        const authorId = c.get("userId")
+  try {
+    const body = await c.req.json();
 
+    console.log(body.userId)
+    // Check if the user exists before creating the blog post
+    const userExists = await prisma.user.findUnique({
+      where: {
+        id: body.userId,
+      },
+    }); 
 
-       
-      const blog = await prisma.post.create({
-        data:{
-            title: body.title,
-            content:body.content,
-            published: true,
-            authorid: authorId
-        }
-      })
+    console.log(userExists)
+    if (!userExists) {
+      throw new Error('User not found');
+    }
+
+    // Create the blog post
+    const blog = await prisma.post.create({
+      data: {
+        title: body.title,
+        content: body.content,
+        published: true,
+        authorid: body.userId,
+      },
+    });
 
     return c.json({
-        id:blog.id
-    })
-      }
-      catch(e)
-      {
-        console.log("error in posting blog")
-        c.status(401)
-        return c.json(
-            {message:"error while posting blog"}
-        )
-      }
-  })
+      id: blog.id,
+    });
+  } catch (error) {
+    console.error('Error posting blog:', error);
+     c.status(401)
+     return c.json({
+      message: 'Error while posting blog' + error,
+      
+    });
+  } finally {
+    await prisma.$disconnect(); // Disconnect Prisma client after the operation
+  }
+});
+
   
   
   blogRoute.put('/',async (c) => {
