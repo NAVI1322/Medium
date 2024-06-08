@@ -4,7 +4,7 @@ import { Comment_Post } from "../Blog_ui/modal_Comment_post";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-import { DateFormat, getTimeDifference } from "../dateFormater/DateFormat";
+import { DateFormat, getTimeDifference } from "../ui/DateFormat";
 
 const Post_Page = () => {
 
@@ -37,11 +37,7 @@ const [post,setPost]=useState <postData>({
   },[])
 
 
-  useEffect(()=>{
-
-    const res = await
-  })
-
+ 
 
 
   return (

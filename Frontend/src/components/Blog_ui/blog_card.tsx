@@ -6,7 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { DateFormat, getTimeDifference } from "../dateFormater/DateFormat";
+import { DateFormat, getTimeDifference } from "../ui/DateFormat";
 
 
 
