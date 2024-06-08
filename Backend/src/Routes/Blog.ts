@@ -63,8 +63,10 @@ blogRoute.post('/', async (c) => {
       data: {
         title: body.title,
         content: body.content,
+        category:body.category,
         published: true,
         authorid: body.userId,
+        likes: 0, 
       },
     });
 
@@ -124,10 +126,86 @@ blogRoute.post('/', async (c) => {
             message:"error while updating the blog"
         })
     }
+    finally {
+      await prisma.$disconnect(); // Disconnect Prisma client after the operation
+    }
 
     
   })
   
+  blogRoute.get('/getComments/:id',async (c)=>{
+    const prisma = new PrismaClient({
+      datasourceUrl:c.env.DATABASE_URL,
+    }).$extends(withAccelerate()) 
+
+    const id = c.req.param('id');
+
+    try {
+      const comments = await prisma.comment.findMany({
+        where: {
+          postId: parseInt(id)
+        },
+        select: {
+          postId: true,
+          content: true,
+          createdAt: true,
+          authorId: true
+        }
+      });
+    
+      // Map over each comment object to extract the required properties
+      const formattedComments = comments.map(comment => ({
+        id: comment.postId,
+        content: comment.content,
+        createdAt: comment.createdAt,
+        authorId: comment.authorId
+      }));
+    
+      c.status(200);
+      return c.json({
+        message: `fetched comments from ${id}`,
+        data: formattedComments
+      });
+    } catch (error) {
+      
+      console.log("error :" + error);
+    
+    }
+  })
+
+
+  blogRoute.post('/postComment/:id', async (c) => {
+    const prisma = new PrismaClient({
+      datasourceUrl: c.env.DATABASE_URL,
+    }).$extends(withAccelerate());
+  
+    const postId = c.req.param("id"); 
+    const body = await c.req.json(); 
+  
+    try {
+      if (postId!=null) {
+        const newComment = await prisma.comment.create({
+          data: {
+            postId: parseInt(postId),
+            content: body.content,
+            authorId: body.authorId,
+          }
+        });
+  
+        c.status(201); 
+        return c.json({
+          message: `Comment created successfully for post ID: ${postId}`,
+          data: newComment
+        });
+      } else {
+        throw new Error("Comment Id is missing or invalid");
+      }
+    } catch (error) {
+      console.log("error :" + error);
+      c.status(500); 
+      return c.json({ error: "An error occurred while posting the comment." });
+    }
+});
 
   // add featue pagination
   blogRoute.get('/bulk', async (c) => {
@@ -182,6 +260,9 @@ blogRoute.post('/', async (c) => {
         return c.json({
             message:"not able to get the required post"
         })
+    }
+    finally {
+      await prisma.$disconnect(); // Disconnect Prisma client after the operation
     }
 
     

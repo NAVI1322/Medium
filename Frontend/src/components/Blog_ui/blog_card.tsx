@@ -6,8 +6,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import axios from "axios";
-import { useEffect } from "react";
+import { DateFormat, getTimeDifference } from "../dateFormater/DateFormat";
+
 
 
 
@@ -15,16 +15,17 @@ interface Card_Content{
   date: String,
   title: String,
   content: String,
+  category: String,
   ClickEvent:()=>void,
 }
 
 
-const BlogCard = ({date,title,content,ClickEvent}:Card_Content) => {
+const BlogCard = ({date,title,content,ClickEvent,category}:Card_Content) => {
 
 
 
   return (
-    <Card className=" " onClick={ClickEvent}> 
+    <Card  onClick={ClickEvent}> 
       <CardHeader className="flex flex-col space-y-3">
         <CardDescription>
           <div className="flex space-x-2 items-center">
@@ -35,7 +36,7 @@ const BlogCard = ({date,title,content,ClickEvent}:Card_Content) => {
             />
             <span className="text-lg font-">Navneet Sharma .</span>
             <span className="text-md font-extralight text-gray-300">
-              {date}
+              {DateFormat(date.toString())}
             </span>
           </div>
         </CardDescription>
@@ -43,17 +44,17 @@ const BlogCard = ({date,title,content,ClickEvent}:Card_Content) => {
       </CardHeader> 
       <CardContent>
       <div className=" md:w-[550px] text-ellipsis overflow-hidden mb-5">
-  <p className="line-clamp-3">
-    {content}
-  </p>
+  <p className="line-clamp-3" dangerouslySetInnerHTML={{ __html: content }} /> 
+  
+  
 </div>
       </CardContent>
 
       <CardFooter className=" flex  justify-between items-center">
         
            <div className=" flex space-x-3 items-center">
-           <button className="px-2 py-1 opacity-50 bg-gray-50 rounded-2xl text-sm dark:text-black">hello</button>
-            <span className="text-sm text-gray-400 ">7 min Read</span>
+           <button className="px-2 py-1 opacity-50 bg-gray-50 rounded-2xl text-sm dark:text-black">{category}</button>
+            <span className="text-sm text-gray-400 ">{getTimeDifference(date.toString())}</span>
            </div>
            
            <div className="flex space-x-2">

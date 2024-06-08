@@ -20,6 +20,7 @@ model User {
   lastName String?
   password String
   posts    Post[]
+  Comment Comment[]
 }
 
 model Post {
@@ -29,5 +30,20 @@ model Post {
   published Boolean @default(false)
   author    User    @relation(fields: [authorid], references: [id])   // this tell the user that authorid of table post refers to id of user table
   authorid  String
+  category String?
   createdAt DateTime  @default(now())
+  likes Int  @default(0)
+  Comment Comment[]
+
+}
+
+
+model Comment {
+  id        Int      @id @default(autoincrement()) // comment id
+  content   String  // content
+  createdAt DateTime @default(now()) 
+  postId    Int     // post where the comment is 
+  post      Post     @relation(fields: [postId], references: [id])
+  authorId  String // who did the comment 
+  author    User     @relation(fields: [authorId], references: [id])
 }

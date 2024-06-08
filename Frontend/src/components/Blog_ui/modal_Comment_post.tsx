@@ -13,8 +13,21 @@ import {
 import { Card, CardDescription, CardFooter, CardHeader } from "../ui/card"
 import { Textarea } from "../ui/textarea"
 import Comments_Card from "./comments_card"
+import { useEffect } from "react"
+import axios from "axios"
 
 export function Comment_Post() {
+
+
+
+  async function HandleCommentPost()
+  {
+      const res = axios.post("http://localhost:8787/api/v1/blog/",{
+
+      })
+  }
+
+
   return (
     
       <SheetContent>

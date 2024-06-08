@@ -4,23 +4,43 @@ import { Comment_Post } from "../Blog_ui/modal_Comment_post";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
+import { DateFormat, getTimeDifference } from "../dateFormater/DateFormat";
 
 const Post_Page = () => {
 
+
+interface postData {
+  title:string,
+  content:string,
+  category:string,
+  createdAt:string,
+}
+
   const { id } = useParams();
-const [post,setPost]=useState({});
+const [post,setPost]=useState <postData>({
+  title:"",
+  content:"",
+  category:"",
+  createdAt:""
+});
 
   useEffect(()=>{
     
     async function FetchPostData() {
 
-      console.log(id)
+      
       const res = (await axios.get("http://localhost:8787/api/v1/blog/"+id)).data.blog
       setPost(res);
     
     }
     FetchPostData()
   },[])
+
+
+  useEffect(()=>{
+
+    const res = await
+  })
 
 
 
@@ -46,14 +66,14 @@ const [post,setPost]=useState({});
           </div>
           <div className="flex flex-col md:flex-row text-sm mt-1 md:space-x-2">
             <div className="">
-              <span className="text-gray-400 ">Published in </span>Level up
-              Coding
+              <span className="text-gray-400 ">Published in </span>{post.category}
+           
             </div>
             <div className="space-x-2">
               <span className="text-gray-400">.</span>
-              <span className="text-gray-400">5 min ago</span>
+              <span className="text-gray-400">{getTimeDifference(post.createdAt)}</span>
               <span className="text-gray-400">.</span>
-              <span className="text-gray-400">jan 25,2024</span>
+              <span className="text-gray-400">{DateFormat(post.createdAt.toString())}</span>
             </div>
           </div>
         </div>
@@ -143,13 +163,15 @@ const [post,setPost]=useState({});
           className="w-[680px] h-[388px]"
         />
       </div>
-      <div className="  mt-10 w-[680px] h-[388px] font-light ">
-        
-        
-       {post.content}
+    <div className="flex justify-center">
+    <div 
+        className="mt-10 md:w-[680px] md:h-[388px] w-[300px]  font-sans  text-center"
+        dangerouslySetInnerHTML={{ __html: post.content }}
+      />
+    </div>
       </div>
       
-    </div>
+  
     
   );
 };
