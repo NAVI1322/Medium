@@ -45,7 +45,7 @@ blogRoute.post('/', async (c) => {
   try {
     const body = await c.req.json();
 
-    console.log(body.userId)
+   
     // Check if the user exists before creating the blog post
     const userExists = await prisma.user.findUnique({
       where: {
@@ -65,13 +65,12 @@ blogRoute.post('/', async (c) => {
         content: body.content,
         category:body.category,
         published: true,
-        authorid: body.userId,
-        likes: 0, 
+        authorId: body.userId,
       },
     });
 
     return c.json({
-      id: blog.id,
+      Blog_id: blog.id,
     });
   } catch (error) {
     console.error('Error posting blog:', error);
@@ -86,21 +85,91 @@ blogRoute.post('/', async (c) => {
 });
 
   
+
+   blogRoute.get('GetProfileData/:id',async(c)=>{
+
+    const prisma = new PrismaClient({
+      datasourceUrl:c.env.DATABASE_URL,
+    }).$extends(withAccelerate())  
+
+    const id = c.req.param('id');
+    
+    try{
+
+      const GetUserData= await prisma.user.findUnique({
+        where:{
+          id:id
+        },
+        select:{
+          firstName:true,
+          lastName:true,
+          email:true,
+          comments:true,
+        }
+      })
+
+      console.log(GetUserData)
+     
+     
+      c.status(200)
+      return c.json({
+          message:"User Data Retrieved",
+          UserData:GetUserData
+
+      });
+
+    }
+    catch(e)
+    {
+      c.status(401)
+      return c.json({
+          message:"Something Went Wrong, While Retriving User Profile data",
+       
+
+      });
+
+    }
+
+   })
   
-  blogRoute.put('/',async (c) => {
+  blogRoute.put('/:id',async (c) => {
 
     const prisma = new PrismaClient({
         datasourceUrl:c.env.DATABASE_URL,
       }).$extends(withAccelerate())   // this creates a prisma client to perform queries
        
+      const id = c.req.param('id');
     try{
         const body = await c.req.json();
-         
-  
+        
+        if (body.firstName || body.lastName) 
+        {
+          const updatedUser = await prisma.user.update({
+            where: {
+              id: id,
+            },
+            data: {
+              firstName: body.firstName,
+              lastName: body.lastName,
+            },
+            select:{
+              firstName:true,
+              lastName:true,
+              email:true,
+            }
+          });
+    
+          c.status(200);
+          return c.json({
+            message: 'User data has been updated successfully',
+            user: updatedUser,
+          });
+        }
+        else {
         const blog = await prisma.post.update({
-  
+
           where:{
-             id:body.id
+             id:parseInt(id)
           },
   
           data:{
@@ -117,6 +186,7 @@ blogRoute.post('/', async (c) => {
             message:"blog has updated successfully"
 
         })
+      }
     }
     catch(e)
     {
@@ -132,7 +202,14 @@ blogRoute.post('/', async (c) => {
 
     
   })
+
+
   
+  
+
+
+  //   _______________________________Comments_________________________________________
+
   blogRoute.get('/getComments/:id',async (c)=>{
     const prisma = new PrismaClient({
       datasourceUrl:c.env.DATABASE_URL,
@@ -189,6 +266,12 @@ blogRoute.post('/', async (c) => {
             postId: parseInt(postId),
             content: body.content,
             authorId: body.authorId,
+          },
+          select :{
+            postId:true,
+            content:true,
+            authorId:true,
+            createdAt:true
           }
         });
   
@@ -203,9 +286,227 @@ blogRoute.post('/', async (c) => {
     } catch (error) {
       console.log("error :" + error);
       c.status(500); 
-      return c.json({ error: "An error occurred while posting the comment." });
+      return c.json({ error: "An error occurred while posting the comment." + error  });
     }
 });
+
+
+
+//  _______________________________LIKES_________________________________________
+
+blogRoute.post('/likes/:id', async (c) => {
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate());
+
+   const postId = parseInt(c.req.param("id")); 
+    const {userId }=  await c.req.json(); 
+  console.log(userId + "  " + postId)
+  try {
+
+    const existingLike = await prisma.like.findUnique({
+      where: {
+        postId_userId: {
+          postId: postId,
+          userId: userId,
+        },
+      },
+    });
+
+    if (existingLike) {
+       c.status(201)
+       return c.json({
+        success: true,
+        error: 'You have already liked this post.',
+      });
+    } else {
+      // Create a new like entry
+      const newLike = await prisma.like.create({
+        data: {
+          postId: postId,
+          userId: userId,
+        },
+      });
+     
+
+      c.status(200)
+      return c.json({
+        success: true,
+        message: 'Like added successfully.',
+        data: newLike,
+       
+      });
+    }
+  } catch (error) {
+    console.error('Error adding like:', error);
+   c.status(500)
+  return  c.json({
+      success: false,
+      error: 'An error occurred while adding like. ' + error,
+    });
+  }
+});
+
+
+blogRoute.get('/getLikes/:id',async (c)=>{
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate());
+  const postId = parseInt(c.req.param("id")); 
+  try{
+    
+
+    const likeCount = await prisma.like.count({
+     where: {
+       postId: postId,
+     }, 
+   });
+
+  
+   c.status(201)
+   return c.json({
+     message:"successfully reterive likes for "+postId,
+     success:false,
+     Liked:true,
+     LikeCount:likeCount
+
+  })}
+  catch(e)
+  {
+    console.log("erroe while getting likes " + e)
+    c.status(401)
+    return c.json({
+      message:"error While getting likes for "+postId,
+      success:false
+    })
+  }
+
+})
+
+blogRoute.post('/likes/:id', async (c) => {
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate());
+
+   const postId = parseInt(c.req.param("id")); 
+    const {userId }=  await c.req.json(); 
+  console.log(userId + "  " + postId)
+  try {
+
+   
+
+    const existingLike = await prisma.like.findUnique({
+      where: {
+        postId_userId: {
+          postId: postId,
+          userId: userId,
+        },
+      },
+    });
+
+    if (existingLike) {
+
+       c.status(401)
+       return c.json({
+        success: false,
+        error: 'You have already liked this post.',
+      });
+    } else {
+      // Create a new like entry
+      const newLike = await prisma.like.create({
+        data: {
+          postId: postId,
+          userId: userId,
+        },
+      });
+
+      const likeCount = await prisma.like.count({
+        where: {
+          postId: postId,
+        },
+      });
+
+      console.log("likedCount" + likeCount)
+
+      c.status(200)
+      return c.json({
+        success: true,
+        Liked:true,
+        LikeCount:likeCount,
+        message: 'Like added successfully.',
+        data: newLike,
+       
+      });
+    }
+  } catch (error) {
+    console.error('Error adding like:', error);
+   c.status(500)
+  return  c.json({
+      success: false,
+      error: 'An error occurred while adding like. ' + error,
+    });
+  }
+});
+
+
+blogRoute.put('/likes/:id', async (c) => {
+  try {
+    const prisma = new PrismaClient({
+      datasourceUrl: c.env.DATABASE_URL,
+    }).$extends(withAccelerate());
+     const postId = parseInt(c.req.param("id")); 
+    const { userId } = await c.req.json();
+
+   
+    const existingLike = await prisma.like.findUnique({
+      where: {
+        postId_userId: {
+          postId: postId,
+          userId: userId,
+        },
+      },
+    });
+
+
+    if (existingLike) {
+      await prisma.like.delete({
+        where: {
+          postId_userId: {
+            postId: postId,
+            userId: userId,
+          },
+        },
+      });
+
+      
+
+      c.status(200); // OK
+      return c.json({
+        success: false,
+        Liked:false,
+        message: 'Post disliked.',
+      });
+    } else {
+      c.status(200); // Not Found
+      return c.json({
+        success: false,
+  
+        Liked:false,
+        error: 'Like not found. Cannot delete.',
+      });
+    }
+  } catch (error) {
+    console.error('Error adding or removing like:', error);
+    c.status(500);
+    return c.json({
+      success: false,
+      error: 'An error occurred while adding or removing like.',
+    });
+  }
+});
+
+
+//------------------------------------------------------------------------------------------
 
   // add featue pagination
   blogRoute.get('/bulk', async (c) => {
@@ -269,7 +570,65 @@ blogRoute.post('/', async (c) => {
   })
   
 
+  blogRoute.post('/PostAbout/:id',async (c) => {
+
+    const prisma = new PrismaClient({
+        datasourceUrl:c.env.DATABASE_URL,
+      }).$extends(withAccelerate())   // this creates a prisma client to perform queries
+
+ 
+     
+
+      const {About}= await c.req.json();
+      const id = c.req.param("id");
+      console.log(id);
+      try{
+      
+        const UserExist =  await prisma.user.findUnique({
+          where:{
+            id:id
+          }
+        });
+
+        console.log(UserExist)
+        if(!UserExist)
+        {
+          c.status(400);
+          return  c.json({
+              message:"User Does not Exist",
+              
+          })
+           
+        }
+        else
+        {
+          const about = await prisma.user.update({
+            where:{ id:id },
+            data:{About:About }
+          })
+          console.log(about)
+          c.status(200);
+          
+        return  c.json({
+            message:"About Section Updated Successfully"
+          })
+
+        }
+      
+
+      }
+      catch(e)
+      {
+        c.status(400);
+        return    c.json({
+              message:" Unable to update About",
   
+            })
+        
+      }
+    })
+
+    
 
   blogRoute.get('/delete', async (c) => {
 

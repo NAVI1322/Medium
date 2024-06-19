@@ -1,9 +1,20 @@
 import { useNavigate } from "react-router-dom";
 import { ModeToggle } from "../elements/mode_toggle";
 import { Input } from "../ui/input";
+import { ContextMenuTrigger } from "@radix-ui/react-context-menu";
+import { ProfileContectMenu } from "../Profile/Profile_ContextMenu";
+import { ContextMenu } from "../ui/context-menu";
 
 const NavBar = () => {
   const navigate = useNavigate();
+
+
+  const handleRightClick = (event:any) => {
+    event.preventDefault(); // Prevent the default context menu
+    // Your custom logic here for right-click action
+    console.log('Right-clicked on image!');
+    // You can add more functionality here, like showing a custom context menu
+  };
 
   return (
     <div className="p-5 flex justify-between m-1 border-b hover:shadow-sm dark:shadow-sm dark:border   dark:hover:shadow-white sticky top-0 z-10">
@@ -59,13 +70,22 @@ const NavBar = () => {
           <span className="font-thin text-md md:font-lg">Write</span>
         </div>
         <ModeToggle />
-        <img
-          src="https://source.unsplash.com/random"
+        
+        <ContextMenu>
+        <ContextMenuTrigger>
+        <div>
+           <img
+          src="https://picsum.photos/400/400"
           alt=""
           className="rounded-full w-8 h-8"
-        />
+         />
+        </div>
+         <ProfileContectMenu />
+         </ContextMenuTrigger>
+         </ ContextMenu >
+        </div>
       </div>
-    </div>
+   
   );
 };
 

@@ -6,7 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { DateFormat, getTimeDifference } from "../ui/DateFormat";
+import { DateFormat, getTimeDifference } from "../Config/DateFormat";
 
 
 
@@ -30,7 +30,7 @@ const BlogCard = ({date,title,content,ClickEvent,category}:Card_Content) => {
         <CardDescription>
           <div className="flex space-x-2 items-center">
             <img
-              src="https://source.unsplash.com/random"
+              src="https://picsum.photos/400/400"
               alt=""
               className="rounded-full w-8 h-8"
             />

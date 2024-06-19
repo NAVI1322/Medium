@@ -18,7 +18,7 @@ interface BlogEntry {
 export function DashBoard() {
   const navigator = useNavigate();
   const [card, setCard] = useState<BlogEntry[]>([]); // Define the correct type for card
-
+  const Domain = import.meta.env.VITE_DOMAIN;
   const [selectedCategory, setSelectedCategory] = useState<string>("");
 
   // Function to receive selected category from Combobox
@@ -29,7 +29,8 @@ export function DashBoard() {
 
   useEffect(() => {
     async function fetchCardData() {
-      const res = (await axios.get("http://localhost:8787/api/v1/blog/bulk")).data.blogs;
+      const res = (await axios.get(`${Domain}/api/v1/blog/bulk`)).data.blogs;
+      
       setCard(res);
  
     }

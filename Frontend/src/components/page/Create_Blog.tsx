@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import  { useState } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { FileInput } from 'flowbite-react';
@@ -13,6 +13,7 @@ const CreateBlog = () => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('');
+  const Domain = import.meta.env.VITE_DOMAIN;
 
   
   const handleChange = (value: string) => {
@@ -23,10 +24,10 @@ const CreateBlog = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://localhost:8787/api/v1/blog', {
+      const response = await axios.post(`${Domain}/api/v1/blog`, {
         title: title,
         content: content,
-        userId: '1611debf-ac0f-4fa9-a144-3ddd26a43886',
+        userId: 'c4ea7b6f-2310-440f-a9de-a83269019a68',
         category: category,
       });
 
